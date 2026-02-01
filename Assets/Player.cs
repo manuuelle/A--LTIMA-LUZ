@@ -21,6 +21,9 @@ public class PlayerMovimento : MonoBehaviour
     private AudioSource audioSource;
     private bool tocandoPassos = false;
 
+    //  ADICIONADO (ANIMAÇÃO)
+    private Animator animator;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -28,6 +31,9 @@ public class PlayerMovimento : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
+
+        //  ADICIONADO (ANIMAÇÃO)
+        animator = GetComponent<Animator>();
     }
 
     void Update()
@@ -38,6 +44,9 @@ public class PlayerMovimento : MonoBehaviour
         Pular();
         Virar(horizontal);
         SonsDePassos(horizontal);
+
+        //  ADICIONADO (ANIMAÇÃO)
+        animator.SetBool("andando", Mathf.Abs(horizontal) > 0.1f);
     }
 
     void Movimentar(float h)
@@ -54,16 +63,18 @@ public class PlayerMovimento : MonoBehaviour
 
             if (somPulo != null)
                 audioSource.PlayOneShot(somPulo);
+
+            // ADICIONADO (ANIMAÇÃO)
+            animator.SetTrigger("pulo");
         }
     }
 
-    // ✅ ÚNICA CORREÇÃO REAL (não muda lógica)
     void Virar(float h)
     {
         if (h == 0) return;
 
-       SpriteRenderer sr = corpo.GetComponent<SpriteRenderer>();
-       sr.flipX = h < 0;
+        SpriteRenderer sr = corpo.GetComponent<SpriteRenderer>();
+        sr.flipX = h < 0;
     }
 
     void SonsDePassos(float h)
@@ -91,7 +102,12 @@ public class PlayerMovimento : MonoBehaviour
     void OnCollisionEnter2D(Collision2D other)
     {
         if (other.gameObject.CompareTag("Chao"))
+        {
             noChao = true;
+
+            //  ADICIONADO (ANIMAÇÃO)
+            animator.ResetTrigger("pulo");
+        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
